@@ -1,0 +1,31 @@
+{
+  "name": "AdsPlatform",
+  "private": true,
+  "scripts": {
+    "build": "poi --prod",
+    "dev": "poi --serve",
+    "lint": "eslint ."
+  },
+  "eslint": {
+    "@disable": false,
+    "args": [],
+    "excludes": [
+      "*/*.html"
+    ]
+  },
+  "devDependencies": {
+    "@poi/plugin-eslint": "^12.0.0",
+    "eslint": "^5.9.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "node-sass": "^4.13.1",
+    "poi": "^12.4.2",
+    "sass-loader": "^8.0.2"
+  },
+  "dependencies": {
+    "youtube-player": "^5.5.2"
+  }
+}

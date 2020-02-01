@@ -1,0 +1,74 @@
+$height: 30px;
+
+html, body {
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+}
+
+#root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+
+  #youtube-container {
+    position: relative;
+    display: none;
+    width: inherit;
+    height: inherit;
+    background-color: rgba(#000, .9);
+
+    &.actived {
+      display: block;
+    }
+
+    #youtube {
+      position: fixed;
+      right: 0;
+      top: 0;
+      min-width: 100%;
+      min-height: calc(100% - #{$height});
+      width: auto;
+      height: auto;
+    }
+
+    .info {
+      display: flex;
+      flex-flow: row;
+      justify-content: space-around;
+      align-items: center;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: auto;
+      height: $height;
+      color: #fff;
+      opacity: .6;
+      z-index: 999;
+
+      .col {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        padding: 0 1.5rem;
+      }
+
+      label {
+        margin-right: .2rem;
+
+        &::after {
+          content: '：';
+        }
+      }
+
+      #amount::before {
+        content: '$';
+      }
+
+      #time::after {
+        content: 's';
+        margin-left: .15rem;
+      }
+    }
+  }
+}
