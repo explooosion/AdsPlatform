@@ -1,17 +1,11 @@
 $height: 30px;
 
-html, body {
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
-}
-
-#root {
+.App {
   position: relative;
   width: 100vw;
   height: 100vh;
 
-  #youtube-container {
+  .youtube-container {
     position: relative;
     display: none;
     width: inherit;
