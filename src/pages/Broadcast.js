@@ -9,19 +9,18 @@ import AppContext from '../appContext';
 import { generateIframeSrc } from '../utils/youtube';
 import './Broadcast.scss';
 
-// localStorage.debug = 'youtube-player:*';
+localStorage.debug = 'youtube-player:*';
 
 function Broadcast() {
   // 24E735ED2BE8A01C6D7DF3002879F719
   let { id: roomId } = useParams();
 
-  // const [ws, setWs] = useState(null);
   const { ws } = useContext(AppContext);
   const [player, setPlayer] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isWSConn, setIsWSConn] = useState(false);
-  const [queue, setQueue] = useState([]);
-  const [history, setHistory] = useState([]);
+  const [pointer, setPointer] = useState(-1);
+  const [songs, setSongs] = useState([]);
 
   const [amount, setAmount] = useState(null);
   const [time, setTime] = useState(null);
@@ -77,13 +76,13 @@ function Broadcast() {
 
       if (_.has(res, 'msg')) {
         // 來自斗內贊助
-        setQueue([...queue, res]);
+        setSongs([...songs, res]);
       } else if (_.has(res, 'action')) {
         // 接受類型為動作
         onMessageAction(res.action);
       }
     } catch (err) {
-      console.error(msg, err);
+      console.log('onMessage JSON 解析失敗', msg);
     }
   }
 
@@ -109,15 +108,13 @@ function Broadcast() {
    */
   const onPrevious = () => {
     console.log('previous');
-    const _history = _.last(history);
-    if (_.isUndefined(_history)) {
-      console.log('previous - 沒有上一首');
+    if (!isPlaying && pointer + 1 === songs.length) {
+      onPlayMusic(pointer);
+    } else if (isPlaying && pointer > 0) {
+      onPlayMusic(pointer - 1);
     } else {
-      const _queue = [_history, ...queue];
-      setQueue(_queue);
+      onPlayMusic(0);
     }
-    setTime(0);
-    player.stopVideo();
   }
 
   /**
@@ -125,8 +122,12 @@ function Broadcast() {
    */
   const onNext = () => {
     console.log('next');
-    setTime(0);
-    player.stopVideo();
+    if (pointer + 1 < songs.length) {
+      onPlayMusic(pointer + 1);
+    } else {
+      setTime(0);
+      player.stopVideo();
+    }
   }
 
   /**
@@ -138,7 +139,7 @@ function Broadcast() {
       amount: 30,
       donateid: '11455355',
       msg: 'https://www.youtube.com/watch?v=FR91CB5SBWU',
-      name: 'Robby',
+      name: `播放音樂，指標為`,
     };
     onSend(payload);
   }
@@ -161,6 +162,7 @@ function Broadcast() {
   const initPlayer = () => {
     player.on('ready', onReady);
     player.on('stateChange', onStateChange);
+    player.on('error', () => setTimeout(onNext, 5000));
   }
 
   /**
@@ -179,7 +181,6 @@ function Broadcast() {
     // 2 – paused
     // 3 – buffering
     // 5 – video cued
-
     switch (event.data) {
       case 1: // 開始播放
         // setIsPlaying(true);
@@ -196,31 +197,37 @@ function Broadcast() {
   /**
    * YT 播放貯列的下一首音樂
    */
-  const onPlayMusic = (args = null) => {
-    if (_.isNull(player)) return;
+  const onPlayMusic = (_pointer = null) => {
+    if (_.isNull(player) || _.isNull(_pointer)) return;
 
-    const res = _.isNull(args) ? queue[0] : args;
+    // 取得下一首的指標
+    const res = songs[_pointer];
     console.log('onPlayMusic', res);
-    const { msg, amount, name } = res;
-    const [url] = generateIframeSrc(msg);
 
-    setIsPlaying(true);
-    setHistory([...history, res]);
-    setQueue(_.drop(queue));
-    setAmount(amount);
+    setAmount(res.amount);
+    setPointer(_pointer);
 
-    const _time = Math.floor(Number(amount) * 0.33 * 100) / 100;
-    setTime(_time);
+    const [url, id] = generateIframeSrc(res.msg);
 
-    onSpeak(name);
-    player.loadVideoByUrl(url);
-    player.playVideo();
+    // 如果抓不到正確網址，就跳下一首
+    if (_.isNull(id)) {
+      console.log('onPlayMusic 抓不到影片編號');
+    } else {
+      setIsPlaying(true);
+      const _time = Math.floor(Number(res.amount) * 0.33);
+      setTime(_time);
+      onSpeak(res.name);
+      player.loadVideoByUrl(url);
+      player.playVideo();
+    }
   }
 
-  const onSpeak = (name) => {
+  const onSpeak = async (name) => {
     // API https://responsivevoice.org/api/
     // Languages https://responsivevoice.org/text-to-speech-languages/
-    if (window.responsiveVoice.voiceSupport()) {
+    await window.responsiveVoice.cancel();
+    const isSupport = await window.responsiveVoice.voiceSupport();
+    if (isSupport) {
       window.responsiveVoice.speak(name, 'Chinese Taiwan Female');
     }
   }
@@ -229,20 +236,15 @@ function Broadcast() {
    * 每 N 秒偵測進度，判斷終止歌曲邏輯
    */
   const onPlayerTimer = async () => {
-
     const state = await player.getPlayerState();
     if (state !== 1) return;
 
-    // const current = await player.getCurrentTime();
     const timeNext = time - 1;
-
-    // 播放完畢 or 超額時間(如果手動跳時間會失效，因此需要&&)
     if (timeNext < 1) {
-      player.stopVideo();
       setTime(0);
-      console.log('onPlayerTimer', 'stopVideo()');
+      player.stopVideo();
     } else {
-      const _time = Math.floor(timeNext * 100) / 100;
+      const _time = Math.floor(timeNext);
       setTime(_time);
     }
   }
@@ -252,16 +254,15 @@ function Broadcast() {
    */
   const onQueueTimer = () => {
     console.log('====== onQueueTimer =========');
-    console.log('history', history);
-    console.log('queue', queue);
-    console.log('isPlaying', isPlaying);
-    if (queue.length > 0 && isPlaying === false) {
-      onPlayMusic();
+    console.log('songs', songs);
+    console.log('pointer', pointer, '(songs index)');
+    // 下一首指標是否還沒超過歌曲總數，並且歌曲存在。
+    if (pointer + 1 < songs.length && songs.length > 0) {
+      onPlayMusic(pointer + 1);
     };
     console.log('=============================');
     console.log('');
   }
-
 
   const renderDebug = () => {
     if (process.env.NODE_ENV === 'development') {

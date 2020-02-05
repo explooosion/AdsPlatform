@@ -67,6 +67,7 @@ function Manage() {
   /**
    * WS 發送 DONATE 歌曲
    */
+  // eslint-disable-next-line no-unused-vars
   const onSendOpay = () => {
     const payload = {
       amount: 10,
@@ -80,6 +81,7 @@ function Manage() {
   /**
    * WS 發送上一首
    */
+  // eslint-disable-next-line no-unused-vars
   const onSendPrevious = () => {
     if (!isWSConn) return;
     const payload = { action: 'msg', msg: JSON.stringify({ action: 'previous' }) };
@@ -115,7 +117,7 @@ function Manage() {
       <div className="debug">
         <h4>發送 WebSocket</h4>
         {/** <button onClick={() => onSendOpay()}>Donate</button> */}
-        <button onClick={() => onSendPrevious()} >Previous</button>
+        {<button onClick={() => onSendPrevious()} >Previous</button>}
         <button onClick={() => onSendNext()} >Next</button>
       </div>
     </div>
