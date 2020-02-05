@@ -135,7 +135,7 @@ function Broadcast() {
   // eslint-disable-next-line no-unused-vars
   const onTestRecive = () => {
     const payload = {
-      amount: 10,
+      amount: 30,
       donateid: '11455355',
       msg: 'https://www.youtube.com/watch?v=FR91CB5SBWU',
       name: 'Robby',
@@ -201,17 +201,28 @@ function Broadcast() {
 
     const res = _.isNull(args) ? queue[0] : args;
     console.log('onPlayMusic', res);
-    const { msg, amount } = res;
+    const { msg, amount, name } = res;
     const [url] = generateIframeSrc(msg);
 
     setIsPlaying(true);
     setHistory([...history, res]);
     setQueue(_.drop(queue));
     setAmount(amount);
-    setTime(amount);
 
+    const _time = Math.floor(Number(amount) * 0.33 * 100) / 100;
+    setTime(_time);
+
+    onSpeak(name);
     player.loadVideoByUrl(url);
     player.playVideo();
+  }
+
+  const onSpeak = (name) => {
+    // API https://responsivevoice.org/api/
+    // Languages https://responsivevoice.org/text-to-speech-languages/
+    if (window.responsiveVoice.voiceSupport()) {
+      window.responsiveVoice.speak(name, 'Chinese Taiwan Female');
+    }
   }
 
   /**
@@ -226,12 +237,13 @@ function Broadcast() {
     const timeNext = time - 1;
 
     // 播放完畢 or 超額時間(如果手動跳時間會失效，因此需要&&)
-    if (_.toNumber(timeNext) < 1) {
+    if (timeNext < 1) {
       player.stopVideo();
       setTime(0);
       console.log('onPlayerTimer', 'stopVideo()');
     } else {
-      setTime(timeNext);
+      const _time = Math.floor(timeNext * 100) / 100;
+      setTime(_time);
     }
   }
 
@@ -250,11 +262,27 @@ function Broadcast() {
     console.log('');
   }
 
+
+  const renderDebug = () => {
+    if (process.env.NODE_ENV === 'development') {
+      return (
+        <div className="debug">
+          <button onClick={() => onTestRecive()}>Donate</button>
+          <button onClick={() => onPrevious()}>Previous</button>
+          <button onClick={() => onNext()}>Next</button>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }
+
   useInterval(
     () => onPlayerTimer(),
-    isPlaying && isWSConn ? 900 : null
+    isPlaying && isWSConn ? 1000 : null
   );
 
+  // 判斷佇列
   useInterval(
     () => onQueueTimer(),
     !isPlaying && isWSConn ? 2000 : null
@@ -267,13 +295,7 @@ function Broadcast() {
 
   return (
     <div className="broadcast">
-      {/**
-     <div className="debug">
-        <button onClick={() => onTestRecive()}>Donate</button>
-        <button onClick={() => onPrevious()}>Previous</button>
-        <button onClick={() => onNext()}>Next</button>
-      </div>
-     */}
+      {renderDebug()}
       <div className={`youtube-container ${isPlaying ? 'actived' : ''}`}>
         <div className="info">
           <div className="col">

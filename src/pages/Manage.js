@@ -114,7 +114,7 @@ function Manage() {
     <div className="broadcast">
       <div className="debug">
         <h4>發送 WebSocket</h4>
-        <button onClick={() => onSendOpay()}>Donate</button>
+        {/** <button onClick={() => onSendOpay()}>Donate</button> */}
         <button onClick={() => onSendPrevious()} >Previous</button>
         <button onClick={() => onSendNext()} >Next</button>
       </div>
