@@ -1,6 +1,13 @@
 $height: 30px;
 
-.App {
+.debug {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+}
+
+.broadcast {
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -10,7 +17,7 @@ $height: 30px;
     display: none;
     width: inherit;
     height: inherit;
-    background-color: rgba(#000, .9);
+    background-color: rgba(#000, 0.9);
 
     &.actived {
       display: block;
@@ -37,7 +44,7 @@ $height: 30px;
       width: auto;
       height: $height;
       color: #fff;
-      opacity: .6;
+      opacity: 0.6;
       z-index: 999;
 
       .col {
@@ -48,20 +55,20 @@ $height: 30px;
       }
 
       label {
-        margin-right: .2rem;
+        margin-right: 0.2rem;
 
         &::after {
-          content: '：';
+          content: "：";
         }
       }
 
       #amount::before {
-        content: '$';
+        content: "$";
       }
 
       #time::after {
-        content: 's';
-        margin-left: .15rem;
+        content: "s";
+        margin-left: 0.15rem;
       }
     }
   }

@@ -8,8 +8,9 @@ export default class Socket {
   }
 
   connect() {
+    this.ws = new WebSocket(this.URL);
     console.log(this.URL);
-    return new WebSocket(this.URL);
+    return this.ws;
     // this.ws.onopen = this.onOpen.bind(this);
     // this.ws.onclose = this.onClose.bind(this);
     // this.ws.onmessage = this.onMessage.bind(this);
