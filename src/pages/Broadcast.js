@@ -44,7 +44,6 @@ function Broadcast() {
     console.log('onOpen', msg);
     onJoinRoom(roomId);
     setIsWSConn(true);
-    // setTimeout(onTestRecive, 2000);
   }
 
   /**
@@ -268,11 +267,13 @@ function Broadcast() {
 
   return (
     <div className="broadcast">
-      <div className="debug">
+      {/**
+     <div className="debug">
         <button onClick={() => onTestRecive()}>Donate</button>
         <button onClick={() => onPrevious()}>Previous</button>
         <button onClick={() => onNext()}>Next</button>
       </div>
+     */}
       <div className={`youtube-container ${isPlaying ? 'actived' : ''}`}>
         <div className="info">
           <div className="col">
