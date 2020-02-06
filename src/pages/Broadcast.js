@@ -10,6 +10,7 @@ import { generateIframeSrc } from '../utils/youtube';
 import './Broadcast.scss';
 
 const cashOfSeconds = 0.6;
+const reConnInterval = 2000;
 
 function Broadcast() {
   // 24E735ED2BE8A01C6D7DF3002879F719
@@ -33,6 +34,7 @@ function Broadcast() {
     ws.onopen = onOpen;
     ws.onmessage = onMessage;
     ws.onclose = onClose;
+    ws.onerror = onError;
   }
 
   /**
@@ -50,7 +52,23 @@ function Broadcast() {
    * @param {object} msg
    */
   const onClose = msg => {
+    setIsPlaying(false);
+    setIsWSConn(false);
     console.log('onClose', msg);
+    setTimeout(onReConnect, reConnInterval);
+  }
+
+  const onError = msg => {
+    ws.close();
+    setIsPlaying(false);
+    setIsWSConn(false);
+    console.log('onError', msg);
+    setTimeout(onReConnect, reConnInterval);
+  }
+
+  const onReConnect = () => {
+    console.log('onReConnect ...');
+    setWs(new Socket().connect());
   }
 
   /**

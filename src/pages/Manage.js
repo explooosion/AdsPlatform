@@ -4,6 +4,8 @@ import _ from 'lodash';
 
 import Socket from '../services/socket';
 
+const reConnInterval = 2000;
+
 function Manage() {
   // 24E735ED2BE8A01C6D7DF3002879F719
   let { id: roomId } = useParams();
@@ -17,6 +19,7 @@ function Manage() {
     ws.onopen = onOpen;
     ws.onmessage = onMessage;
     ws.onclose = onClose;
+    ws.onerror = onError;
   }
 
   /**
@@ -34,7 +37,21 @@ function Manage() {
    * @param {object} msg
    */
   const onClose = msg => {
+    setIsWSConn(false);
     console.log('onClose', msg);
+    setTimeout(onReConnect, reConnInterval);
+  }
+
+  const onError = msg => {
+    ws.close();
+    setIsWSConn(false);
+    console.log('onError', msg);
+    setTimeout(onReConnect, reConnInterval);
+  }
+
+  const onReConnect = () => {
+    console.log('onReConnect ...');
+    setWs(new Socket().connect());
   }
 
   /**
