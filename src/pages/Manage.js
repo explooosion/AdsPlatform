@@ -19,7 +19,6 @@ function Manage() {
     ws.onopen = onOpen;
     ws.onmessage = onMessage;
     ws.onclose = onClose;
-    ws.onerror = onError;
   }
 
   /**
@@ -39,13 +38,6 @@ function Manage() {
   const onClose = msg => {
     setIsWSConn(false);
     console.log('onClose', msg);
-    setTimeout(onReConnect, reConnInterval);
-  }
-
-  const onError = msg => {
-    ws.close();
-    setIsWSConn(false);
-    console.log('onError', msg);
     setTimeout(onReConnect, reConnInterval);
   }
 

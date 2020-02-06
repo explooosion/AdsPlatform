@@ -34,7 +34,6 @@ function Broadcast() {
     ws.onopen = onOpen;
     ws.onmessage = onMessage;
     ws.onclose = onClose;
-    ws.onerror = onError;
   }
 
   /**
@@ -55,14 +54,6 @@ function Broadcast() {
     setIsPlaying(false);
     setIsWSConn(false);
     console.log('onClose', msg);
-    setTimeout(onReConnect, reConnInterval);
-  }
-
-  const onError = msg => {
-    ws.close();
-    setIsPlaying(false);
-    setIsWSConn(false);
-    console.log('onError', msg);
     setTimeout(onReConnect, reConnInterval);
   }
 

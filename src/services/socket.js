@@ -9,11 +9,17 @@ export default class Socket {
 
   connect() {
     this.ws = new WebSocket(this.URL);
+    this.ws.onerror = this.onError;
     console.log(this.URL);
     return this.ws;
     // this.ws.onopen = this.onOpen.bind(this);
     // this.ws.onclose = this.onClose.bind(this);
     // this.ws.onmessage = this.onMessage.bind(this);
     // this.ws.onerror = this.onError.bind(this);
+  }
+
+  onError = msg => {
+    this.ws.close();
+    console.log('onError', msg);
   }
 }
