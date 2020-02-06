@@ -1,21 +1,19 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import YouTubePlayer from 'youtube-player';
 import { useInterval } from 'react-use';
 import _ from 'lodash';
 
-import AppContext from '../appContext';
+import Socket from '../services/socket';
 
 import { generateIframeSrc } from '../utils/youtube';
 import './Broadcast.scss';
-
-localStorage.debug = 'youtube-player:*';
 
 function Broadcast() {
   // 24E735ED2BE8A01C6D7DF3002879F719
   let { id: roomId } = useParams();
 
-  const { ws } = useContext(AppContext);
+  const [ws, setWs] = useState(null);
   const [player, setPlayer] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isWSConn, setIsWSConn] = useState(false);
@@ -290,7 +288,7 @@ function Broadcast() {
   );
 
   useEffect(() => {
-    if (!_.isNull(ws)) initWebSocket();
+    if (_.isNull(ws)) { setWs(new Socket().connect()) } else { initWebSocket() };
     if (_.isNull(player)) { setPlayer(YouTubePlayer('youtube')) } else { initPlayer() };
   }, [initPlayer, initWebSocket, player, isWSConn, ws])
 

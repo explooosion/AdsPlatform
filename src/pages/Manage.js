@@ -1,15 +1,14 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import _ from 'lodash';
 
-import AppContext from '../appContext';
+import Socket from '../services/socket';
 
 function Manage() {
   // 24E735ED2BE8A01C6D7DF3002879F719
   let { id: roomId } = useParams();
 
-  // const [ws, setWs] = useState(null);
-  const { ws } = useContext(AppContext);
+  const [ws, setWs] = useState(null);
   const [isWSConn, setIsWSConn] = useState(false);
 
   // 初始化 WebSocket 事件監聽
@@ -109,7 +108,7 @@ function Manage() {
   }
 
   useEffect(() => {
-    if (!_.isNull(ws)) initWebSocket();
+    if (_.isNull(ws)) { setWs(new Socket().connect()) } else { initWebSocket() };
   }, [initWebSocket, ws])
 
   return (
