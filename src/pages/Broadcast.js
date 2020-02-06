@@ -9,6 +9,8 @@ import Socket from '../services/socket';
 import { generateIframeSrc } from '../utils/youtube';
 import './Broadcast.scss';
 
+const cashOfSeconds = 0.6;
+
 function Broadcast() {
   // 24E735ED2BE8A01C6D7DF3002879F719
   let { id: roomId } = useParams();
@@ -212,7 +214,7 @@ function Broadcast() {
       console.log('onPlayMusic 抓不到影片編號');
     } else {
       setIsPlaying(true);
-      const _time = Math.floor(Number(res.amount) * 0.33);
+      const _time = Math.floor(Number(res.amount) * cashOfSeconds);
       setTime(_time);
       onSpeak(res.name);
       player.loadVideoByUrl(url);
